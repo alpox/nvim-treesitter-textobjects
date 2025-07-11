@@ -330,7 +330,9 @@ function M.next_textobject(node, query_string, query_group, same_parent, overlap
     return -node_start
   end
 
-  local next_node = queries.find_best_match(bufnr, query_string, query_group, filter_function, scoring_function)
+  local root = node:tree():root()
+
+  local next_node = queries.find_best_match(bufnr, query_string, query_group, filter_function, scoring_function, root)
 
   if next_node then
     return next_node.node, next_node.metadata
@@ -367,11 +369,23 @@ function M.previous_textobject(node, query_string, query_group, same_parent, ove
     return node_end
   end
 
-  local previous_node = queries.find_best_match(bufnr, query_string, query_group, filter_function, scoring_function)
+  local root = node:tree():root()
+
+  local previous_node = queries.find_best_match(bufnr, query_string, query_group, filter_function, scoring_function, root)
 
   if previous_node then
     return previous_node.node, previous_node.metadata
   end
+end
+
+function M.get_lang_at_cursor()
+  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+  row = row - 1
+
+  local parser = parsers.get_parser()
+  local tree = parser:language_for_range({row, col, row, col})
+
+  return tree:lang()
 end
 
 return M

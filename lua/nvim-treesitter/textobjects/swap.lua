@@ -8,7 +8,9 @@ local function swap_textobject(query_strings_regex, query_group, direction)
   query_strings_regex = shared.make_query_strings_table(query_strings_regex)
   query_group = query_group or "textobjects"
 
-  local query_strings = shared.get_query_strings_from_regex(query_strings_regex, query_group)
+  local lang = shared.get_lang_at_cursor()
+
+  local query_strings = shared.get_query_strings_from_regex(query_strings_regex, query_group, lang)
 
   local bufnr, textobject_range, node, query_string
   for _, query_string_iter in ipairs(query_strings) do
@@ -29,6 +31,7 @@ local function swap_textobject(query_strings_regex, query_group, direction)
     local forward = direction > 0
     local adjacent, metadata =
       shared.get_adjacent(forward, node, query_string, query_group, same_parent, overlapping_range_ok, bufnr)
+
     ts_utils.swap_nodes(textobject_range, metadata and metadata.range or adjacent, bufnr, "yes, set cursor!")
   end
 end
